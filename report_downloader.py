@@ -4,8 +4,11 @@ from bs4 import BeautifulSoup
 import time
 import re
 
-IN = 'report_links.csv'
-PATH = 'reports/'
+IN = 'report_links_Analysis_Report.csv'
+IN = 'report_links_ICS_Advisory.csv'
+PATH = 'reports/Analysis_Report/'
+PATH = 'reports/ICS_Advisory/'
+
 ENCODING = 'utf-8'
 
 

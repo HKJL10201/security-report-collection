@@ -2,7 +2,7 @@ import csv
 import requests
 from bs4 import BeautifulSoup
 
-OUT = 'report_links.csv'
+OUT = 'report_links_ICS_Advisory.csv'
 
 
 def req(url):
@@ -16,9 +16,9 @@ def req(url):
     return soup
 
 
-def reptile(max_idx=300, page=1, idx=1, tm=10):
+def reptile(max_idx=3000, page=1, idx=1, tm=10):
     res = []
-    url = 'https://www.cisa.gov/news-events/cybersecurity-advisories?f%5B0%5D=advisory_type%3A65&search_api_fulltext=&sort_by=field_release_date&page=0'
+    url = 'https://www.cisa.gov/news-events/cybersecurity-advisories?f%5B0%5D=advisory_type%3A95&search_api_fulltext=&sort_by=field_release_date&page=0'
 
     while idx <= max_idx:
         print("\r{0: <8}".format(idx), end="")
