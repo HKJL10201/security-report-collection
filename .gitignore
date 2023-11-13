@@ -3,3 +3,4 @@ bak/
 TODO.md
 config
 test.*
+__pycache__
