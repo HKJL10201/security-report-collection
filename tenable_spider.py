@@ -269,14 +269,15 @@ def delete_dup_name():
 
 
 def html2json(soup: BeautifulSoup):
-    def get_all_next_nodes(node, stops=['h4','section']):
+    def get_all_next_nodes(node, stops=['h4', 'section']):
         res = []
         next_node = node.find_next_sibling()
         while next_node != None and next_node.name not in stops:
             res.append(next_node)
             next_node = next_node.find_next_sibling()
         return res
-    def all_p_filter(nodes:list):
+
+    def all_p_filter(nodes: list):
         # only flatten the div
         def p_selector(element):
             # if element.name == 'p' and 'class' in element.attrs.keys():
@@ -290,65 +291,69 @@ def html2json(soup: BeautifulSoup):
         for node in nodes:
             p_selector(node)
         return all_p_res
+
     def get_inner_text(element):
         output = ""
         if element.name is None:
             return str(element)
         elif element.name == 'a':
-            output += f"[{element.text}]({element['href']})"
+            output += f"[{element.text.strip()}]({element['href']})"
         elif element.name == 'strong':
             # print(element.text.replace(': ',bar))
-            output += element.text.replace(': ',bar)
+            output += element.text.replace(': ', bar)
         else:
             # if element.name == 'p' and 'class' in element.attrs.keys():
             #     print(element)
             for sub_element in element.contents:
                 output += get_inner_text(sub_element)
         return output
+
     def list2strlist(nodelist: list):
-        res=[]
+        res = []
         for node in nodelist:
-            text=get_inner_text(node)
+            text = get_inner_text(node)
             res.append(text)
         return res
-    def list2str(key:str,value:list):
-        def zero_filter(strs:list):
-            res=[]
+
+    def list2str(key: str, value: list):
+        def zero_filter(strs: list):
+            res = []
             for s in strs:
                 if len(s) == 0:
                     continue
                 res.append(s)
             return res
-        def list2dict(strs:list):
-            def is_dict(strs:list):
+
+        def list2dict(strs: list):
+            def is_dict(strs: list):
                 for s in strs:
                     if bar not in s:
                         return False
                 return True
             if not is_dict(strs):
                 return '\n'.join(strs)
-            res={}
+            res = {}
             for s in strs:
                 try:
-                    k,v=s.split(bar)
+                    k, v = s.split(bar)
                 except:
                     print(s)
                     exit()
-                res[k]=v
-            return  res
-        
+                res[k] = v
+            return res
+
         # bar = ' : '
         value = zero_filter(value)
         if key == 'Risk Information':
-            res=[]
-            bar_idx=[]
+            res = []
+            bar_idx = []
             for idx, v in enumerate(value):
                 if bar not in v:
                     bar_idx.append(idx)
             bar_idx.append(len(value))
             for idx, bi in enumerate(bar_idx[:-1]):
-                tmp=value[bi:bar_idx[idx+1]]
-                tmp[0]='Name'+bar+tmp[0]
+                tmp = value[bi:bar_idx[idx+1]]
+                tmp[0] = 'Name'+bar+tmp[0]
                 res.append(list2dict(tmp))
             return res
         else:
@@ -360,9 +365,10 @@ def html2json(soup: BeautifulSoup):
     res['Title'] = title
     all_h4 = soup.findAll('h4', class_="border-bottom pb-1")
     for h4 in all_h4:
-        key=h4.text
+        key = h4.text
         # if h4.text=='Reference Information':
-        res[key] = list2str(key,list2strlist(all_p_filter(get_all_next_nodes(h4))))
+        res[key] = list2str(key, list2strlist(
+            all_p_filter(get_all_next_nodes(h4))))
     # print(res)
     return res
 
@@ -373,8 +379,8 @@ def convert_all_html():
     outpath = 'bak/tenable_json/'
     files = os.listdir(dir)
     files = sorted(files)
-    for cnt,fn in enumerate(files):
-        print(cnt,fn)
+    for cnt, fn in enumerate(files):
+        print(cnt, fn)
         fpath = dir+fn
         soup = None
         # fpath = dir+'156262.html'
@@ -388,28 +394,31 @@ def convert_all_html():
         with open(outpath+fn.replace('.html', '.json'), 'w', encoding='utf-8') as wt:
             json.dump(dic, wt, indent=4)
 
+
 def json_formatter():
     import json
     dir = 'bak/tenable_json/'
     files = os.listdir(dir)
     files = sorted(files)
-    for cnt,fn in enumerate(files):
-        print(cnt,fn)
+    for cnt, fn in enumerate(files):
+        print(cnt, fn)
         fpath = dir+fn
-        dic=None
+        dic = None
         with open(fpath, encoding='utf-8') as rd:
-            dic=json.load(rd)
+            dic = json.load(rd)
         updated = False
-        key='See Also'
+        key = 'See Also'
         if key in dic.keys():
-            value=dic[key]
+            value = dic[key]
             dic[key] = value.split('\n')
-            updated=True
+            updated = True
         # return
         if not updated:
             continue
         with open(fpath, 'w', encoding='utf-8') as wt:
             json.dump(dic, wt, indent=4)
+
+
 # main()
 # html_download()
 # error404_detection()
