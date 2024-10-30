@@ -2,12 +2,15 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import csv
-
+import os
 
 BASE = 'https://nvd.nist.gov/vuln/detail/'
 IN = 'logs/cve_list.txt'
 IN = 'inputSeverity.csv'
-OUTPATH = 'bak/nvd/'
+IN = 'logs/cve_list_Debian.txt'
+OUTPATH = 'bak/nvd2/'
+if not os.path.exists(OUTPATH):
+    os.mkdir(OUTPATH)
 
 
 def req(url):
@@ -46,8 +49,11 @@ def getCVECsv():
 
 def main():
     cveList = getCVEList()
-
     for idx, cve in enumerate(cveList):
+        if idx >= len(cveList)//2:
+            break
+        if cve[:3] != 'CVE':
+            continue
         url = BASE + cve
         response = req(url)
         if response is None:
@@ -58,7 +64,8 @@ def main():
         print(idx, cve)
 
 
-# main()
+main()
+exit(0)
 
 
 def processHTML(html):
@@ -118,4 +125,4 @@ def collect2():
     print('\ndone')
 
 
-collect2()
+# collect2()

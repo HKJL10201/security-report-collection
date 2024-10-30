@@ -5,36 +5,20 @@ from pprint import pp, pprint
 import os
 
 
-BASE = 'https://security-tracker.debian.org/tracker/'
-IN = 'logs/cve_list_Debian.txt'
-OUTPATH = 'bak/debian2/'
+BASE = 'https://cveawg.mitre.org/api/cve/'
+IN = 'logs/cve_list_CVE.txt'
+OUTPATH = 'bak/cve/'
 if not os.path.exists(OUTPATH):
     os.mkdir(OUTPATH)
 
 
-def dedup():
-    fn1 = 'logs/cve_list_all.txt'
-    fn2 = 'logs/cve_list.txt'
-    f1 = open(fn1, 'r', encoding='utf-8').read().strip().splitlines()
-    f2 = open(fn2, 'r', encoding='utf-8').read().strip().splitlines()
-    res = sorted(list(set(f1)-(set(f2))))
-    print('{:d} - {:d} = {:d}'.format(len(f1), len(f2), len(res)))
-    with open('logs/cve_list_Debian.txt', 'w', encoding='utf-8') as f:
-        f.write('\n'.join(res)+'\n')
-
-
-# dedup()
-# exit(0)
-
-
 def req(url):
-    success = False
     attempts = 0
-    while not success:  # and attempts < 5:
+    while True:  # and attempts < 5:
         try:
             response = requests.get(url)
             response.raise_for_status()
-            success = True
+            break
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 503:
@@ -57,11 +41,13 @@ def main():
     for idx, cve in enumerate(cveList):
         if idx >= len(cveList)//2:
             break
+        if cve[:3] != 'CVE':
+            continue
         url = BASE + cve
         response = req(url)
         if response is None:
             continue
-        output = OUTPATH+cve+'.html'
+        output = OUTPATH+cve+'.json'
         with open(output, 'w', encoding='utf-8') as out:
             out.write(response.text)
         print(idx, cve)
@@ -69,6 +55,7 @@ def main():
 
 main()
 exit(0)
+
 PKGKEY = 'Package'
 VERKEY = 'Version'
 CODEKEY = 'Code'
